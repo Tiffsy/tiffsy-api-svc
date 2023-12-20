@@ -32,7 +32,7 @@ const adduser = asyncHandler( async (req, res) => {
 });
 
 const getUser = asyncHandler( async (req, res) =>{
-    console.log("raj");
+    // console.log("raj");
     const params = {
         TableName: process.env.CUSTOMER_DETAILS,
     }

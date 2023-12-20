@@ -1,26 +1,47 @@
 const asyncHandler = require('express-async-handler')
 const {dynamoClient} = require('../database/dbConfig')
-const member = 
+
+const data = [
     {
-        id: "7",
-        Name: 'Rainn',
-        Surname: 'Scott',
-        Gender: 'Male',
-        Age: 24
+        title: "Mix Veg & Dal Makhani",
+        price: 250,
+        description: "Creamy black ",
+        rating: 4,
+        type: "breakfast"
+    },
+    {
+        title: "Mix Veg & Dal Makhani",
+        price: 250,
+        description: "Creamy black ",
+        rating: 4,
+        type: "lunch"
+    },
+    {
+        title: "Mix Veg & Dal Makhani",
+        price: 250,
+        description: "Creamy black ",
+        rating: 4,
+        type: "Dinner"
     }
+]
 
-const menu = asyncHandler(async (req, res) => {
+const getTodaymenu = asyncHandler(async (req, res) => {
 
-})
-const addmenu = asyncHandler(async (req, res) => {
-
-    const params = {
-        TableName: "menu",
-        Item: member
+    const {dt} = req.body;
+    
+    try{
+        res.status(200).json(data);
+    }
+    catch(err){
+        res.status(500);
+        throw new Error(err)
     }
     
-    const respone = await dynamoClient.put(params).promise();
-    res.status(200).json({respone});
+
+})
+
+const addMenu = asyncHandler(async (req, res) =>{
+
 });
 
-module.exports = {menu, addmenu}
+module.exports = {getTodaymenu, addMenu}

@@ -37,6 +37,11 @@ const errorHandler = (err, req, res, next) => {
                 stackTrance: err.stack,
             });
             break;
+        case 200:
+            console.log("No Error, All good!, code 200");
+            // next()
+            break;
+
         default:
             console.log("No Error, All good!");
             break;

@@ -3,6 +3,66 @@ const {dynamoClient} = require("../database/dbConfig");
 const { v4: uuidv4 } = require('uuid');
 
 
+const data = [
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Lunch",
+        subscriptionType: "Monthly",
+        deliveryDate: "2020-07-30T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 2,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Breakfast",
+        subscriptionType: "One-day",
+        deliveryDate: "2024-07-30T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Dinner",
+        subscriptionType: "Weekly",
+        deliveryDate: "2020-07-30T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Lunch",
+        subscriptionType: "Monthly",
+        deliveryDate: "2023-12-31T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Lunch",
+        subscriptionType: "Monthly",
+        deliveryDate: "2023-07-30T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Lunch",
+        subscriptionType: "Monthly",
+        deliveryDate: "2023-09-29T14:00:00.000-04",
+        amount: 100
+    },
+    {
+        count: 1,
+        dish: "Mix Veg & Dal Makhani",
+        mealType : "Lunch",
+        subscriptionType: "Monthly",
+        deliveryDate: "2023-07-30T14:00:00.000-04",
+        amount: 100
+    },
+
+]
+
 const getOrderDetails = asyncHandler(async (req, res) => {
 
     const {cst_id} = req.body;
@@ -88,4 +148,16 @@ const getOrderByDate = asyncHandler(async (req, res) =>{
     }
 
 });
-module.exports = {getOrderDetails, getOrdersByTime, addOrder, getOrderByDate}
+
+const getOrderHistory = asyncHandler(async (req, res) => {
+
+    try{
+        res.status(200).json(data);
+    }
+    catch(err){
+        res.status(500);
+        throw new Error(err)
+    }
+
+});
+module.exports = {getOrderDetails, getOrdersByTime, addOrder, getOrderByDate, getOrderHistory}

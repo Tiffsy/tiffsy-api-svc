@@ -26,9 +26,9 @@ const data = [
 ]
 
 const getTodaymenu = asyncHandler(async (req, res) => {
-
-    const {dt} = req.body;
     
+    const {dt} = req.body;
+    console.log("Raj");
     try{
         res.status(200).json(data);
     }
@@ -36,8 +36,6 @@ const getTodaymenu = asyncHandler(async (req, res) => {
         res.status(500);
         throw new Error(err)
     }
-    
-
 })
 
 const addMenu = asyncHandler(async (req, res) =>{

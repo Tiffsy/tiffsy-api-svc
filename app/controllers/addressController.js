@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require('uuid');
 
 
 const getAddressList = asyncHandler(async (req, res) => {
-
     const { cst_id } = req.body;
     if (!cst_id) {
         res.status(401);
@@ -13,29 +12,22 @@ const getAddressList = asyncHandler(async (req, res) => {
     else {
         console.log("Customer ID", cst_id);
         const params = {
-            TableName: process.env.CUSTOMER_DETAILS,
-            KeyConditionExpression: 'cst_id = :id',
+            TableName: process.env.CUSTOMER_ADDRESS,
+            KeyConditionExpression: 'cst_id = :pk', //AND addr_id = :sk', // remove addr_id condition if want to query based on cst_id only
             ExpressionAttributeValues: {
-                ':id': cst_id,
-            },
-            ProjectionExpression: 'addr_lst'
-        };
+                ':pk': cst_id,
+                //':sk': '1', // remove this also if want to query based on cst_id only
+        }};
         try {
-            dynamoClient.query(params, (err, data) => {
+            const response = await dynamoClient.query(params, (err, data) => {
                 if (err) {
+                    console.error('Error Fetch items:', err);
                     res.status(500);
-                    throw new Error(`Error querying table: ${cst_id}`, err)
+                    throw new Error(err);
                 } else {
-                    const addr_lst = data.Items.map(item => item.addr_lst);
-                    console.log('Address list:', addr_lst);
-                    if (addr_lst.length == 0) {
-                        res.status(404).json({ result: "User not found" });
-                    }
-                    else {
-                        res.status(200).json({ addr_lst: addr_lst[0] });
-                    }
+                    res.status(200).json(data["Items"]);
                 }
-            });
+            });              
         }
         catch (err) {
             res.status(500)
@@ -44,45 +36,46 @@ const getAddressList = asyncHandler(async (req, res) => {
     }
 });
 
-
 const addAdress = asyncHandler(async (req, res) => {
-    const { cst_id, hs_nmbr, add_plc, stte, pncd, cty, add_typ } = req.body;
-    if (!cst_id || !hs_nmbr || !add_plc || !stte || !pncd || !cty || !add_typ) {
+
+    const { cst_id, addr_id, house_num, addr_line, state, pin, city, contact, addr_type } = req.body;
+
+    if (!cst_id || !addr_id || !house_num || !addr_line || !state || !pin || !city || !addr_type) {
         res.status(401);
         throw new Error("Unauthorised, fields are missing");
     }
     else {
-        const add_id = uuidv4();
-        console.log("fields", cst_id, hs_nmbr, add_plc, stte, pncd, cty, add_typ);
-        const params = {
-            TableName: process.env.CUSTOMER_DETAILS,
-            Key: {
-                cst_id: cst_id,
-            },
-            UpdateExpression: 'SET addr_lst = list_append(if_not_exists(addr_lst, :empty_list), :updated_values)',
-            ExpressionAttributeValues: {
-                ':empty_list': [],
-                ':updated_values': [
-                    {
-                        addr_id: add_id,
-                        addr_type: add_typ,
-                        hs_nm: hs_nmbr,
-                        state: stte,
-                        city: cty,
-                        pin: pncd,
-                        add_line_1: add_plc
-                    }
-                ],
-            },
-        };
+        const addrId = uuidv4();
+        const data = {
+            cst_id: cst_id,
+            addr_id: addrId,
+            house_num: house_num,
+            addr_line: addr_line,
+            state: state,
+            pin: pin,
+            city: city,
+            contact: contact,
+            addr_type: addr_type
+        }
 
+        const params = {
+            TableName: 'cstmr_addr',
+            Item: data,
+            ConditionExpression: 'attribute_not_exists(cst_id) AND attribute_not_exists(addr_id)' // remove, if you want to update the item based on cst_id, and addr_id
+        };
         try {
-            dynamoClient.update(params, (err, data) => {
+            dynamoClient.put(params, (err, data) => {
                 if (err) {
-                    res.status(500);
-                    throw new Error(err)
+                    if (err.statusCode == 400) {
+                        res.status(400);
+                        throw new Error(err)
+                    }
+                    else {
+                        res.status(500);
+                        throw new Error(err)
+                    }
                 } else {
-                    res.status(200).json({ result: "Address Added Successfully" })
+                    res.status(200).json({ result: "SUCCESS", data });
                 }
             });
         }
@@ -90,9 +83,7 @@ const addAdress = asyncHandler(async (req, res) => {
             res.status(500);
             throw new Error(err)
         }
-
     }
-
 });
 
 
@@ -110,6 +101,7 @@ const updateAddress = asyncHandler(async (req, res) => {
         res.status(401);
         throw new Error("Unauthorised, fields are missing");
     }
+
     else {
         console.log("Customer ID and Address ID", cst_id, add_id);
         const params = {
@@ -186,68 +178,31 @@ const updateAddress = asyncHandler(async (req, res) => {
 
 const deleteAddress = asyncHandler(async (req, res) => {
 
-    const { cst_id, add_id } = req.body;
+    const { cst_id, addr_id } = req.body;
     if (!cst_id) {
         res.status(401);
         throw new Error("Unauthoried, customer ID missing");
     }
-    else if (!add_id) {
+    else if (!addr_id) {
         res.status(401);
         throw new Error("Unauthoried, address ID missing");
     }
     else {
-        console.log("Customer ID and Address ID", cst_id, add_id);
-        const params = {
-            TableName: process.env.CUSTOMER_DETAILS,
-            KeyConditionExpression: 'cst_id = :id',
-            ExpressionAttributeValues: {
-                ':id': cst_id,
-            },
-            ProjectionExpression: 'addr_lst'
-        };
         try {
-            dynamoClient.query(params, (err, data) => {
+            const params = {
+                TableName: process.env.CUSTOMER_ADDRESS,
+                Key: {
+                    cst_id: cst_id,
+                    addr_id: addr_id
+                }
+            };
+            const response = dynamoClient.delete(params, (err, data) => {
                 if (err) {
-                    console.error('Error querying table:', err);
+                    console.error('Error deleting item:', err);
+                    res.status(500);
+                    throw new Error(err);
                 } else {
-                    const addr_lst = data.Items.map(item => item.addr_lst).flat();
-                    console.log('Address list:', addr_lst);
-                    const existingAddrIndex = addr_lst.findIndex(addr => {
-                        console.log(addr);
-                        return addr.addr_id === add_id;
-                    });
-                    console.log("existing index " + existingAddrIndex);
-
-                    const updatedValues = {
-                        addr_id: add_id,
-                        addr_type: "home",
-                        hs_nm: "203",
-                        state: "Maha",
-                        city: "Pune",
-                        pin: "411028",
-                        add_line_1: "leisure town"
-                    };
-                    if (existingAddrIndex !== -1) {
-                        const updateParams = {
-                            TableName: process.env.CUSTOMER_DETAILS,
-                            Key: {
-                                cst_id: cst_id,
-                            },
-                            UpdateExpression: 'REMOVE addr_lst[' + existingAddrIndex + ']'
-                        };
-
-                        dynamoClient.update(updateParams, (updateErr, updateData) => {
-                            if (updateErr) {
-                                console.error('Error updating item:', updateErr);
-                                res.status(500);
-                                throw new Error(err);
-                            } else {
-                                console.log('Item deleted successfully:', updateData);
-                                res.status(200).json({ result: "success" });
-                            }
-                        });
-
-                    }
+                    res.status(200).json({ result: 'SUCCESS' });
                 }
             });
         }

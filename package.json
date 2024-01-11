@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "express-async-handler": "^1.2.0"
+    "aws-sdk": "^2.1517.0",
+    "express-async-handler": "^1.2.0",
+    "uuid": "^9.0.1"
   }
 }

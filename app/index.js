@@ -1,6 +1,6 @@
 const express = require('express')
 const serverless = require('serverless-http');
-const errorHandler = require('./middleware/errorHandler');
+const {errorHandler} = require('./middleware/errorHandler');
 const dotenv = require('dotenv').config()
 const bodyParser = require('body-parser');
 
@@ -14,11 +14,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
 //Routes
-app.use("/tiffsy", require('./routes/healthRoute'));
+app.use("/tiffsy", require('./routes/mainRoute'));
 
-//Error Handler Middleware
+// Error Handler Middleware
 app.use(errorHandler)
 
 app.listen(port, ()=> console.log('listening on Port 3000!'))
-
 module.exports.handler = serverless(app)

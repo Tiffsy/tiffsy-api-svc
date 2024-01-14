@@ -41,7 +41,7 @@ const addMenu = asyncHandler(async (req, res) => {
             let tmp = {
                 PutRequest: {
                     Item: {
-                        datestmp: currentDateTime.toISOString(),
+                        datestmp: currentDateTime.toISOString().split('T')[0],
                         title: menu[i].title,
                         price: menu[i].price,
                         description: menu[i].description,

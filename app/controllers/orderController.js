@@ -83,21 +83,20 @@ const getOrderBySubsId = asyncHandler(async (req, res) => {
     }
     else{
         const params = {
-            TableName: process.env.CUSTOMER_ORDERS,
-            KeyConditionExpression: 'cst_id = :pk AND scbr_id = :sk',
+            TableName: 'cstmr_ordr',
+            IndexName: 'sbcr_id-index',
+            KeyConditionExpression: 'sbcr_id = :subs_id',
             ExpressionAttributeValues: {
-                ':pk': cst_id,
-                ':sk': subs_id
-                //':sk': '1', // remove this also if want to query based on cst_id only
+                ':subs_id': subs_id
             }
-        };
+           };
         try {
             const response = await dynamoClient.query(params, (err, data) => {
                 if (err) {
                     res.status(500);
                     throw new Error(err);
                 } else {
-                    res.status(200).json({ result: 'SUCCESS', data: data["Items"] });
+                    res.status(200).json({ result: 'SUCCESS', data: data });
                 }
             });
         }
@@ -175,7 +174,7 @@ const addSubscription = asyncHandler(async (req, res) => {
                         PutRequest: {
                             Item: {
                                 cst_id: cst_id,
-                                subId: subs_id,
+                                sbcr_id: subs_id,
                                 ordr_id: order_id,
                                 dt: current.toISOString(),
                                 bc: bc,

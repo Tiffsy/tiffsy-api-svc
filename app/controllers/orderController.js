@@ -86,8 +86,10 @@ const getOrderBySubsId = asyncHandler(async (req, res) => {
             TableName: 'cstmr_ordr',
             IndexName: 'sbcr_id-index',
             KeyConditionExpression: 'sbcr_id = :subs_id',
+            FilterExpression: 'cst_id = :cst_id',
             ExpressionAttributeValues: {
-                ':subs_id': subs_id
+                ':subs_id': subs_id,
+                ':cst_id': cst_id
             }
            };
         try {
@@ -96,7 +98,7 @@ const getOrderBySubsId = asyncHandler(async (req, res) => {
                     res.status(500);
                     throw new Error(err);
                 } else {
-                    res.status(200).json({ result: 'SUCCESS', data: data });
+                    res.status(200).json({ result: 'SUCCESS', data: data["Items"] });
                 }
             });
         }

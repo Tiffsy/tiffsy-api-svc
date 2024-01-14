@@ -215,7 +215,7 @@ const login = asyncHandler(async (req, res) => {
             }
         }, process.env.ACCESS_TOKEN_SECRET,
             {
-                expiresIn: "500m"
+                expiresIn: "5000m"
             });
         res.status(200).json({ token });
     }

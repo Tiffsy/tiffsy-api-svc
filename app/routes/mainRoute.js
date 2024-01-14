@@ -17,8 +17,8 @@ router.post("/today-menu", getTodaymenu);
 
 //Login routers
 router.post("/add-user", adduser);
-router.post("/get-cst-phone", validateToken, getCustomerIdbyPhone);
-router.post("/get-cst-mail", validateToken, getCustomerIdbyMail);
+router.post("/get-cst-phone", getCustomerIdbyPhone);
+router.post("/get-cst-mail", getCustomerIdbyMail);
 router.post("/get-token", login)
 
 //address routers

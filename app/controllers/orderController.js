@@ -7,6 +7,11 @@ const { v4: uuidv4 } = require('uuid');
 // Cancel Order By Date (cst_id, ordr_id)
 const cancelOrderByDate = asyncHandler(async (req, res) => {
     const { cst_id, ordr_id, bc, lc, dc } = req.body;
+
+    const lcnt = parseInt(lc);
+    const bcnt = parseInt(bc);
+    const dcnt = parseInt(dc);
+
     console.log(req.body);
     if (!cst_id || !ordr_id) {
         res.status(401);
@@ -21,9 +26,9 @@ const cancelOrderByDate = asyncHandler(async (req, res) => {
             },
             UpdateExpression: 'SET lc = :lc, bc = :bc, dc = :dc',
             ExpressionAttributeValues: {
-                ':lc': lc,
-                ':bc': bc,
-                ':dc': dc
+                ':lc': lcnt,
+                ':bc': bcnt,
+                ':dc': dcnt
             },
         };
         const response = await dynamoClient.update(params, (err, data) => {
@@ -135,7 +140,6 @@ const addSubscription = asyncHandler(async (req, res) => {
         throw new Error("Missing Fields")
     }
     else {
-
         const subs_id = uuidv4();
         const item = {
             cst_id: cst_id,
@@ -150,7 +154,7 @@ const addSubscription = asyncHandler(async (req, res) => {
             dinMealType: dinMealType,
             cntct: cntct,
             bill: bill,
-            ts: ts,
+            ts: ts, 
             addr_id: addr_id,
             addr_line, addr_line,
             subtype: subtype

@@ -4,6 +4,7 @@ const { dynamoClient } = require("../database/dbConfig");
 // Get all Transaction of Cst_id
 const getPaymentHistory = asyncHandler(async (req, res) =>{
     const {cst_id} = req.body
+    console.log(req.body);
     const params = {
         TableName: process.env.TRANSACTION_DETAILS,
         KeyConditionExpression: 'cst_id = :pk', // remove addr_id condition if want to query based on cst_id only
@@ -16,7 +17,7 @@ const getPaymentHistory = asyncHandler(async (req, res) =>{
           res.status(500);
           throw new Error(err);
         } else {
-          res.status(200).json(data.Items);
+          res.status(200).json({data: data.Items});
         }
     });
 });
@@ -42,24 +43,26 @@ const getTranscationDetails = asyncHandler(async (req, res) => {
    });
 });
 
+
 // Add New Transaction
 const addTransaction = asyncHandler(async (req, res) =>{
-  const {trxnId, subsId, amt, cst_id, ts} = req.body;
-  if(!trxnId || !subsId || !amt || !cst_id || !ts){
+
+  const {trn_id, sbcr_id, amt, cst_id, ts} = req.body;
+  if(!trn_id || !sbcr_id || !amt || !cst_id || !ts){
     res.status(401);
     throw new Error("Missing Fields");
   }
   else{
-    const data = {
-      trxnId: trxnId,
-      subsId: subsId,
+    const query = {
+      trn_id: trn_id,
+      sbcr_id: sbcr_id,
       amt: amt,
       cst_id: cst_id,
       ts: ts
     }
     const params = {
       TableName: process.env.TRANSACTION_DETAILS,
-      Item: data
+      Item: query
     };
     const respone = await dynamoClient.put(params, (err, data) => {
       if (err) {
@@ -72,4 +75,35 @@ const addTransaction = asyncHandler(async (req, res) =>{
   }
 });
 
-module.exports = {getPaymentHistory, addTransaction, getTranscationDetails}
+const updateRefund = asyncHandler(async (req, res) =>{
+  const {cst_id, sbcr_id, amt} = req.body;
+  if(!cst_id || !sbcr_id || !amt){
+    res.status(401);
+    throw new Error("Missing Fields");
+  }
+  else{
+    const tamt = parseInt(amt);
+    const params = {
+      TableName: process.env.SUBSCRITPTION_DETAILS,
+      Key: {
+          cst_id: cst_id,
+          sbcr_id: sbcr_id,
+      },
+      UpdateExpression: 'SET refund_amt = refund_amt + :value1',
+      ExpressionAttributeValues: {
+          ':value1': tamt
+      },
+      ReturnValues: 'ALL_NEW'
+     };
+     const response = await dynamoClient.update(params, (err, data) => {
+      if (err) {
+        res.status(500);
+        throw new Error(err);
+      } else {
+        res.status(200).json({result: "SUCCESS"});
+      }
+     });
+  }
+});
+
+module.exports = {getPaymentHistory, addTransaction, getTranscationDetails, updateRefund};

@@ -76,7 +76,7 @@ const getCustomerIdbyPhone = asyncHandler(async (req, res) => {
             });
         }
         catch (err) {
-            console.log(err);
+        
             throw new Error("Error in db call")
         }
     }
@@ -111,7 +111,7 @@ const getCustomerIdbyMail = asyncHandler(async (req, res) => {
             });
         }
         catch (err) {
-            console.log(err);
+            
             throw new Error("Error in db call")
         }
     }
@@ -125,7 +125,6 @@ const login = asyncHandler(async (req, res) => {
         throw new Error("Unauthorised  ---> fields are missing");
     }
     else if (cst_mail && !cst_nmbr) {
-        console.log(cst_mail, cst_nmbr);
         if (!validateEmail(cst_mail)) {
             res.status(401);
             throw new Error("Invalid Email ID");
@@ -153,20 +152,18 @@ const login = asyncHandler(async (req, res) => {
                             }
                         }, process.env.ACCESS_TOKEN_SECRET,
                             {
-                                expiresIn: "500m"
+                                expiresIn: "50000m"
                             });
                         res.status(200).json({ token });
                     }
                 });
             }
             catch (err) {
-                console.log(err);
                 throw new Error("Error in db call")
             }
         }
     }
     else if (!cst_mail && cst_nmbr) {
-        console.log(cst_mail, cst_nmbr);
 
         if (!validatePhoneNumber(cst_nmbr)) {
             res.status(401);

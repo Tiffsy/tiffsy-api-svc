@@ -5,8 +5,8 @@ const { login, adduser, getUser, getCustomerIdbyPhone, getCustomerIdbyMail } = r
 const { getTodaymenu, addMenu } = require('../controllers/menuController')
 const validateToken = require("../middleware/validateTokenHandler");
 const { getAddressList, addAdress } = require("../controllers/addressController");
-const { cancelOrderByDate, getSubscription, getOrderBySubsId, addSubscription } = require("../controllers/orderController");
-const { getTranscationDetails, addTransaction, getPaymentHistory } = require("../controllers/paymentController");
+const { cancelOrderByDate, getSubscription, getOrderBySubsId, addSubscription, todayOrder } = require("../controllers/orderController");
+const { getTranscationDetails, addTransaction, getPaymentHistory, updateRefund } = require("../controllers/paymentController");
 
 router.get("/health", health);
 router.get("/health-validation", validateToken, health);
@@ -30,10 +30,12 @@ router.post("/cancel-order-date", validateToken, cancelOrderByDate);
 router.post("/get-subcription", validateToken, getSubscription)
 router.post("/get-order-by-Subscription", validateToken, getOrderBySubsId)
 router.post("/add-subscription", validateToken, addSubscription);
+router.post("/today-order", validateToken, todayOrder)
 
 // Transaction Details
 router.post("/get-trxn-by-id", validateToken, getTranscationDetails)
 router.post("/add-trxn", validateToken, addTransaction)
 router.post("/get-trnx-history", validateToken, getPaymentHistory)
+router.post("/update-refund", validateToken, updateRefund)
 
 module.exports = router;

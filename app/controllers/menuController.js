@@ -33,7 +33,9 @@ const getTodaymenu = asyncHandler(async (req, res) => {
 });
 
 const addMenu = asyncHandler(async (req, res) => {
+
     const menu = req.body
+    console.log(menu);
     try{
         let itemToWrite = [];
         const currentDateTime = new Date();
@@ -50,19 +52,22 @@ const addMenu = asyncHandler(async (req, res) => {
                     }
                 }
             };
+            console.log(tmp);
             itemToWrite.push(tmp);
         }
+        // console.log(itemToWrite);
         const batchWriteParams = {
             RequestItems: {
                 [process.env.MENU_HIST]: itemToWrite
             },
           };
-          // Perform the batch write operation
+         
           dynamoClient.batchWrite(batchWriteParams, (err, data) => {
             if (err) {
                 res.status(500);
                 throw new Error(err);
             } else {
+                console.log(data);
                 res.status(200).json({result: "SUCCESS"});
             }
           });

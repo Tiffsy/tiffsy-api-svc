@@ -268,8 +268,6 @@ const todayOrder = asyncHandler(async (req, res) => {
             };
             itemToWrite.push(tmp);
         }
-
-
         const batches = [];
         for (let i = 0; i < itemToWrite.length; i += 25) {
             batches.push(itemToWrite.slice(i, i + 25));
@@ -285,9 +283,13 @@ const todayOrder = asyncHandler(async (req, res) => {
                     })),
                 },
             };
-            await dynamoClient.batchWrite(params).promise();
+            try{
+                await dynamoClient.batchWrite(params).promise();
+            }
+            catch(err){
+                console.log(err);
+            }
         }
-
         res.status(200).json({ result: "SUCCESS" });
     }
     catch(err){

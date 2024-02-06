@@ -7,6 +7,7 @@ const validateToken = require("../middleware/validateTokenHandler");
 const { getAddressList, addAdress } = require("../controllers/addressController");
 const { cancelOrderByDate, getSubscription, getOrderBySubsId, addSubscription, todayOrder } = require("../controllers/orderController");
 const { getTranscationDetails, addTransaction, getPaymentHistory, updateRefund } = require("../controllers/paymentController");
+const { getCoupons, couponApplied, addCoupons } = require("../controllers/couponController");
 
 router.get("/health", health);
 router.get("/health-validation", validateToken, health);
@@ -37,5 +38,12 @@ router.post("/get-trxn-by-id", validateToken, getTranscationDetails)
 router.post("/add-trxn", validateToken, addTransaction)
 router.post("/get-trnx-history", validateToken, getPaymentHistory)
 router.post("/update-refund", validateToken, updateRefund)
+
+// Coupons routers
+router.post("/get-coupons", validateToken, getCoupons);
+router.post("/coupon-applied", validateToken, couponApplied);
+router.post("/add-coupon", validateToken, addCoupons);
+
+
 
 module.exports = router;

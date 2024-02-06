@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const {dynamoClient} = require('../database/dbConfig')
+const moment = require('moment-timezone');
 
 const getTodaymenu = asyncHandler(async (req, res) => {  
     const {dt} = req.body;
@@ -38,12 +39,12 @@ const addMenu = asyncHandler(async (req, res) => {
     console.log(menu);
     try{
         let itemToWrite = [];
-        const currentDateTime = new Date();
+        const currentDateTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD');
         for(let i = 0; i < menu.length; i++){
             let tmp = {
                 PutRequest: {
                     Item: {
-                        datestmp: currentDateTime.toISOString().split('T')[0],
+                        datestmp: currentDateTime.split('T')[0],
                         title: menu[i].title,
                         price: menu[i].price,
                         description: menu[i].description,

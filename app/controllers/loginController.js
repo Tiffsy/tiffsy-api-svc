@@ -41,11 +41,37 @@ const adduser = asyncHandler(async (req, res) => {
                 res.status(500);
                 throw new Error(err);
             } else {
+
+                // add coupon API trigger.
                 res.status(200).json({ result: 'SUCCESS' });
             }
         });
     }
 });
+const deleteUser = asyncHandler(async (req, res) => {
+    const { cst_id } = req.body;
+    if (!cst_id) {
+        res.status(401);
+        throw new Error("Unauthorised, customer ID missing");
+    }
+    else {
+        const params = {
+            TableName: process.env.CUSTOMER_LOGIN,
+            Key: {
+                cst_id: cst_id,
+            }
+        };
+        const response = await dynamoClient.delete(params, (err, data) => {
+            if (err) {
+                res.status(500);
+                throw new Error(err);
+            } else {
+                res.status(200).json({ result: 'SUCCESS' });
+            }
+        });
+    }
+})
+
 
 const getCustomerIdbyPhone = asyncHandler(async (req, res) => {
 
@@ -76,7 +102,7 @@ const getCustomerIdbyPhone = asyncHandler(async (req, res) => {
             });
         }
         catch (err) {
-        
+
             throw new Error("Error in db call")
         }
     }
@@ -111,7 +137,7 @@ const getCustomerIdbyMail = asyncHandler(async (req, res) => {
             });
         }
         catch (err) {
-            
+
             throw new Error("Error in db call")
         }
     }
@@ -203,7 +229,7 @@ const login = asyncHandler(async (req, res) => {
             }
         }
     }
-    else if(cst_mail && cst_nmbr && cst_id){
+    else if (cst_mail && cst_nmbr && cst_id) {
         const token = jwt.sign({
             user: {
                 userMail: cst_mail,
@@ -221,4 +247,4 @@ const login = asyncHandler(async (req, res) => {
         throw new Error("Server error, no login res");
     }
 })
-module.exports = { login, adduser, getCustomerIdbyPhone, getCustomerIdbyMail };
+module.exports = { login, adduser, getCustomerIdbyPhone, getCustomerIdbyMail, deleteUser};

@@ -57,6 +57,7 @@ const addAdress = asyncHandler(async (req, res) => {
             addr_type: addr_type
         }
 
+        
         const params = {
             TableName: process.env.CUSTOMER_ADDRESS,
             Item: data,

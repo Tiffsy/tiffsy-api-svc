@@ -106,4 +106,44 @@ const updateRefund = asyncHandler(async (req, res) =>{
   }
 });
 
-module.exports = {getPaymentHistory, addTransaction, getTranscationDetails, updateRefund};
+const getRefundHistory = asyncHandler(async (req, res) => {
+  res.status(200).json({"data": [
+    {"rfndId":"fda",
+    "subscriptionId": "adda",
+    "subcriptionName": "fadsf",
+    "refundDate": "2024-02-05 22:44:07.644365",
+    "refundAmount": 1,
+    "status": "afa"
+  },
+  {"rfndId":"fda",
+    "subscriptionId": "adda",
+    "subcriptionName": "fadsf",
+    "refundDate": "2024-02-05 22:44:07.644365",
+    "refundAmount": 1,
+    "status": "afa"
+  },
+  {"rfndId":"fda",
+    "subscriptionId": "adda",
+    "subcriptionName": "fadsf",
+    "refundDate": "2024-02-05 22:44:07.644365",
+    "refundAmount": 1,
+    "status": "afa"
+  },
+  {"rfndId":"fda",
+    "subscriptionId": "adda",
+    "subcriptionName": "fadsf",
+    "refundDate": "2024-02-05 22:44:07.644365",
+    "refundAmount": 1,
+    "status": "afa"
+  },
+  {"rfndId":"fda",
+    "subscriptionId": "adda",
+    "subcriptionName": "fadsf",
+    "refundDate": "2024-02-05 22:44:07.644365",
+    "refundAmount": 1,
+    "status": "afa"
+  },
+  ]});
+})
+
+module.exports = {getPaymentHistory, addTransaction, getTranscationDetails, updateRefund, getRefundHistory};

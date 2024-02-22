@@ -85,6 +85,7 @@ const couponApplied = asyncHandler(async (req, res) => {
         throw new Error("Unauthorised, customer ID missing");
     }
     else {
+
         try {
             const params = {
                 TableName: process.env.CUSTOMER_COUPONS,
@@ -110,6 +111,7 @@ const couponApplied = asyncHandler(async (req, res) => {
                     }
                 } else {
                     res.status(200).json({ result: "SUCCESS", data });
+                    
                 }
             });
         }

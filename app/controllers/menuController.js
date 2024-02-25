@@ -36,7 +36,7 @@ const getTodaymenu = asyncHandler(async (req, res) => {
 const addMenu = asyncHandler(async (req, res) => {
 
     const menu = req.body
-    console.log(menu);
+   
     try{
         let itemToWrite = [];
         const currentDateTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD');
@@ -53,7 +53,6 @@ const addMenu = asyncHandler(async (req, res) => {
                     }
                 }
             };
-            console.log(tmp);
             itemToWrite.push(tmp);
         }
         // console.log(itemToWrite);
@@ -68,7 +67,6 @@ const addMenu = asyncHandler(async (req, res) => {
                 res.status(500);
                 throw new Error(err);
             } else {
-                console.log(data);
                 res.status(200).json({result: "SUCCESS"});
             }
           });

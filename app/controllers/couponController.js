@@ -24,7 +24,7 @@ const getCoupons = asyncHandler(async (req, res) => {
                     res.status(500);
                     throw new Error(err);
                 } else {
-                    console.log(data);
+                
                     res.status(200).json(data["Items"]);
                 }
             });

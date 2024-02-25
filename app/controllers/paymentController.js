@@ -4,7 +4,7 @@ const { dynamoClient } = require("../database/dbConfig");
 // Get all Transaction of Cst_id
 const getPaymentHistory = asyncHandler(async (req, res) =>{
     const {cst_id} = req.body
-    console.log(req.body);
+  
     const params = {
         TableName: process.env.TRANSACTION_DETAILS,
         KeyConditionExpression: 'cst_id = :pk', // remove addr_id condition if want to query based on cst_id only

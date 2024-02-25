@@ -181,10 +181,9 @@ const addSubscription = asyncHandler(async (req, res) => {
             } else {
                 try {
                     let itemToWrite = [];
-                    console.log(str_dt);
+                    
                     const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
                     const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
-                    console.log(startDate, endDate);
 
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
                         const order_id = uuidv4();
@@ -228,7 +227,6 @@ const addSubscription = asyncHandler(async (req, res) => {
                 }
                 catch (err) {
                     res.status(500);
-                    console.log(err);
                     throw new Error(err);
                 }
             }
@@ -247,26 +245,65 @@ const todayOrder = asyncHandler(async (req, res) => {
     else {
         try{    
         const ordrs = JSON.parse(ordr);
-        console.log(ordrs);
         let itemToWrite = [];
-        for (const order of ordrs) {
-            const order_id = uuidv4();
-            let tmp = {
+        let orderList = [
+            {
+                meal_time: "breakfast",
                 cst_id: cst_id,
                 dt: str_dt,
                 cntct: cntct,
-                ordr_id: order_id,
+                ordr_id: "",
                 addr_line: addr_line,
                 addr_id: addr_id,
                 remark: remark,
-                trn_id: "dummy",
-                reg_cnt: order["mealType"] == "regular" ? order["count"] : 0,
-                mini_cnt: order["mealType"] == "mini" ? order["count"] : 0,
-                spl_cnt: order["mealType"] == "special" ? order["count"] : 0,
-                meal_time: order["mealTime"]
-            };
-            itemToWrite.push(tmp);
+                reg_cnt: 0,
+                mini_cnt: 0,
+                spl_cnt: 0,
+                trn_id : "dummy"
+
+            }, 
+            {
+                meal_time: "lunch",
+                cst_id: cst_id,
+                dt: str_dt,
+                cntct: cntct,
+                ordr_id: "",
+                addr_line: addr_line,
+                addr_id: addr_id,
+                remark: remark,
+                reg_cnt: 0,
+                mini_cnt: 0,
+                spl_cnt: 0,
+                trn_id : "dummy"
+            }, 
+            {
+                meal_time: "dinner",
+                cst_id: cst_id,
+                dt: str_dt,
+                cntct: cntct,
+                ordr_id: "",
+                addr_line: addr_line,
+                addr_id: addr_id,
+                remark: remark,
+                reg_cnt: 0,
+                mini_cnt: 0,
+                spl_cnt: 0,
+                trn_id : "dummy"
+            }
+        ];
+        for (const order of ordrs) {
+            const index = order["mealTime"] == "breakfast" ? 0 : (order["mealTime"] == "lunch" ? 1 : 2);
+            orderList[index].reg_cnt += order["mealType"] == "regular" ? order["count"] : 0;
+            orderList[index].mini_cnt += order["mealType"] == "mini" ? order["count"] : 0;
+            orderList[index].spl_cnt += order["mealType"] == "special" ? order["count"] : 0;
+            orderList[index].ordr_id = uuidv4();
         }
+        for (const order of orderList) {
+            if (order.mini_cnt + order.reg_cnt + order.spl_cnt > 0) {
+                itemToWrite.push(order);
+            }
+        }
+        console.log(orderList);
         const batches = [];
         for (let i = 0; i < itemToWrite.length; i += 25) {
             batches.push(itemToWrite.slice(i, i + 25));
@@ -286,14 +323,13 @@ const todayOrder = asyncHandler(async (req, res) => {
                 await dynamoClient.batchWrite(params).promise();
             }
             catch(err){
-                console.log(err);
+
             }
         }
         res.status(200).json({ result: "SUCCESS" });
     }
     catch(err){
         res.status(500);
-        console.log(err);
         throw new Error(err);
     }
     }

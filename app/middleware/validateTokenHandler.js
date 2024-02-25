@@ -11,7 +11,6 @@ const validateToken = (req, res, next) => {
                 res.status(401);
                 throw new Error("User is not authorised or user logout");
             }
-            console.log(decoded);
             next();
         })
 

@@ -5,7 +5,7 @@ const { login, adduser, getUser, getCustomerIdbyPhone, getCustomerIdbyMail, dele
 const { getTodaymenu, addMenu } = require('../controllers/menuController')
 const validateToken = require("../middleware/validateTokenHandler");
 const { getAddressList, addAdress } = require("../controllers/addressController");
-const { cancelOrderByDate, getSubscription, getOrderBySubsId, addSubscription, todayOrder } = require("../controllers/orderController");
+const { cancelOrderByDate, getSubscription, getOrderBySubsId, addSubscription, todayOrder, getTodayOrder} = require("../controllers/orderController");
 const { getTranscationDetails, addTransaction, getPaymentHistory, updateRefund, getRefundHistory } = require("../controllers/paymentController");
 const { getCoupons, couponApplied, addCoupons } = require("../controllers/couponController");
 
@@ -33,6 +33,7 @@ router.post("/get-subcription", validateToken, getSubscription)
 router.post("/get-order-by-Subscription", validateToken, getOrderBySubsId)
 router.post("/add-subscription", validateToken, addSubscription);
 router.post("/today-order", validateToken, todayOrder)
+router.post("/get-order-history", validateToken, getTodayOrder);
 
 // Transaction Details
 router.post("/get-trxn-by-id", validateToken, getTranscationDetails)

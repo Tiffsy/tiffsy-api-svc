@@ -87,7 +87,7 @@ const getOrderBySubsId = asyncHandler(async (req, res) => {
     }
     else {
         const params = {
-            TableName: 'cstmr_ordr',
+            TableName: process.env.CUSTOMER_ORDERS,
             IndexName: 'sbcr_id-index',
             KeyConditionExpression: 'sbcr_id = :subs_id',
             FilterExpression: 'cst_id = :cst_id',
@@ -241,7 +241,6 @@ const todayOrder = asyncHandler(async (req, res) => {
 
     const { cst_id, str_dt, cntct, bill, ts, addr_line, addr_id, ordr, remark } = req.body;
     if (!cst_id || !str_dt || !cntct || !ts || !addr_line || !addr_id || !bill || !ordr) {
-        console.log("fail");
         res.status(401);
         throw new Error("Missing Fields")
     }
@@ -300,4 +299,38 @@ const todayOrder = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getOrderBySubsId, cancelOrderByDate, getSubscription, addSubscription, todayOrder }
+const getTodayOrder = asyncHandler(async (req, res) => {
+
+    const {cst_id} = req.body;
+
+    if(!cst_id){
+        res.status(401);
+        throw new Error("Missing Fields")
+    }
+    else{
+        try{
+        const params = {
+            TableName: process.env.SUBSCRIPTIONLESS_ORDERS,
+            IndexName: 'cst_id-index',
+            KeyConditionExpression: 'cst_id = :value',
+            ExpressionAttributeValues: {
+                ':value': cst_id,
+            },
+          };
+          const response = await dynamoClient.query(params, (err, data) => {
+            if (err) {
+                res.status(500);
+                throw new Error(err);
+            } else {
+                res.status(200).json({ result: 'SUCCESS', data: data["Items"]});
+            }
+          });
+        }
+        catch(err){
+            res.status(500)
+            throw new Error(err);
+        }
+    }
+})
+
+module.exports = { getOrderBySubsId, cancelOrderByDate, getSubscription, addSubscription, todayOrder, getTodayOrder}

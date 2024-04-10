@@ -24,7 +24,7 @@ const getCoupons = asyncHandler(async (req, res) => {
                     res.status(500);
                     throw new Error(err);
                 } else {
-                
+
                     res.status(200).json(data["Items"]);
                 }
             });
@@ -36,8 +36,8 @@ const getCoupons = asyncHandler(async (req, res) => {
     }
 });
 const addCoupons = asyncHandler(async (req, res) => {
-    const { cst_id, cpn_code, cnt, expire_dt, discount_prnct, min_price, max_discount} = req.body;
-    if (!cst_id || cpn_code || !cnt || !expire_dt ||!price || !discount_prnct || !min_price || !max_discount) {
+    const { cst_id, cpn_code, cnt, expire_dt, discount_prnct, min_price, max_discount } = req.body;
+    if (!cst_id || cpn_code || !cnt || !expire_dt || !price || !discount_prnct || !min_price || !max_discount) {
         res.status(401);
         throw new Error("Unauthorised, fields are missing");
     }
@@ -85,7 +85,6 @@ const couponApplied = asyncHandler(async (req, res) => {
         throw new Error("Unauthorised, customer ID missing");
     }
     else {
-
         try {
             const params = {
                 TableName: process.env.CUSTOMER_COUPONS,
@@ -111,7 +110,7 @@ const couponApplied = asyncHandler(async (req, res) => {
                     }
                 } else {
                     res.status(200).json({ result: "SUCCESS", data });
-                    
+
                 }
             });
         }
@@ -121,4 +120,5 @@ const couponApplied = asyncHandler(async (req, res) => {
         }
     }
 });
+
 module.exports = { getCoupons, couponApplied, addCoupons };

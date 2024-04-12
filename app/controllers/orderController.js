@@ -5,7 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 
 // convert ts to MM/DD/YYYY
 function formatDate(dateStr) {
-    const dt = new Date(dateStr); // Parse the date string
+    let dt = new Date(dateStr);
+    dt.setDate(dt.getDate() - 1);
     return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
   }
 
@@ -152,10 +153,6 @@ const addSubscription = asyncHandler(async (req, res) => {
         const tdc = parseInt(dc);
         const tsubtype = parseInt(subtype);
         const tbill = parseInt(bill);
-
-        console.log(str_dt);
-        console.log(end_dt);
-
         const item = {
             cst_id: cst_id,
             str_dt: str_dt,
@@ -192,12 +189,11 @@ const addSubscription = asyncHandler(async (req, res) => {
                 try {
                     let itemToWrite = [];
                     
-                    const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
-                    const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
-
-                    console.log(startDate + endDate);
+                    const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
+                    const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
 
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
+                        console.log(current);
                         let meal_date = formatDate(current.toISOString());
                         console.log(meal_date);
                         const order_id = uuidv4();
@@ -220,6 +216,7 @@ const addSubscription = asyncHandler(async (req, res) => {
                         itemToWrite.push(tmp);
                     }
                     const batches = [];
+
                     for (let i = 0; i < itemToWrite.length; i += 25) {
                         batches.push(itemToWrite.slice(i, i + 25));
                     }

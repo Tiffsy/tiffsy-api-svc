@@ -3,6 +3,12 @@ const { dynamoClient } = require("../database/dbConfig");
 const moment = require('moment');
 const { v4: uuidv4 } = require('uuid');
 
+// convert ts to MM/DD/YYYY
+function formatDate(dateStr) {
+    const dt = new Date(dateStr); // Parse the date string
+    return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
+  }
+
 
 // Cancel Order By Date (cst_id, ordr_id)
 const cancelOrderByDate = asyncHandler(async (req, res) => {
@@ -186,6 +192,7 @@ const addSubscription = asyncHandler(async (req, res) => {
                     const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
 
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
+                        let meal_date = formatDate(current.toISOString());
                         const order_id = uuidv4();
                         let tmp = {
                             cst_id: cst_id,
@@ -200,16 +207,15 @@ const addSubscription = asyncHandler(async (req, res) => {
                             addr_id: addr_id,
                             brkMealType: brkMealType,
                             lchMealType: lchMealType,
-                            dinMealType: dinMealType
+                            dinMealType: dinMealType,
+                            meal_dt: meal_date
                         };
                         itemToWrite.push(tmp);
                     }
-
                     const batches = [];
                     for (let i = 0; i < itemToWrite.length; i += 25) {
                         batches.push(itemToWrite.slice(i, i + 25));
                     }
-
                     for (const batch of batches) {
                         const params = {
                             RequestItems: {
@@ -246,6 +252,7 @@ const todayOrder = asyncHandler(async (req, res) => {
         try{    
         const ordrs = JSON.parse(ordr);
         let itemToWrite = [];
+        let meal_date = formatDate(str_dt);
         let orderList = [
             {
                 meal_time: "breakfast",
@@ -259,7 +266,8 @@ const todayOrder = asyncHandler(async (req, res) => {
                 reg_cnt: 0,
                 mini_cnt: 0,
                 spl_cnt: 0,
-                trn_id : "dummy"
+                trn_id : "dummy",
+                ordr_date: meal_date
 
             }, 
             {
@@ -274,7 +282,8 @@ const todayOrder = asyncHandler(async (req, res) => {
                 reg_cnt: 0,
                 mini_cnt: 0,
                 spl_cnt: 0,
-                trn_id : "dummy"
+                trn_id : "dummy",
+                ordr_date: meal_date
             }, 
             {
                 meal_time: "dinner",
@@ -288,7 +297,8 @@ const todayOrder = asyncHandler(async (req, res) => {
                 reg_cnt: 0,
                 mini_cnt: 0,
                 spl_cnt: 0,
-                trn_id : "dummy"
+                trn_id : "dummy",
+                ordr_date: meal_date
             }
         ];
         for (const order of ordrs) {
@@ -303,12 +313,10 @@ const todayOrder = asyncHandler(async (req, res) => {
                 itemToWrite.push(order);
             }
         }
-        console.log(orderList);
         const batches = [];
         for (let i = 0; i < itemToWrite.length; i += 25) {
             batches.push(itemToWrite.slice(i, i + 25));
         }
-
         for (const batch of batches) {
             const params = {
                 RequestItems: {
@@ -323,7 +331,6 @@ const todayOrder = asyncHandler(async (req, res) => {
                 await dynamoClient.batchWrite(params).promise();
             }
             catch(err){
-
             }
         }
         res.status(200).json({ result: "SUCCESS" });

@@ -8,7 +8,11 @@ function formatDate(dateStr) {
     let dt = new Date(dateStr);
     dt.setDate(dt.getDate() - 1);
     return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
-  }
+}
+function formatDateForTodayOrder(dateStr) {
+    let dt = new Date(dateStr);
+    return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
+}
 
 
 // Cancel Order By Date (cst_id, ordr_id)
@@ -188,12 +192,9 @@ const addSubscription = asyncHandler(async (req, res) => {
             } else {
                 try {
                     let itemToWrite = [];
-                    
                     const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
                     const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
-
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
-                        console.log(current);
                         let meal_date = formatDate(current.toISOString());
                         console.log(meal_date);
                         const order_id = uuidv4();
@@ -216,7 +217,6 @@ const addSubscription = asyncHandler(async (req, res) => {
                         itemToWrite.push(tmp);
                     }
                     const batches = [];
-
                     for (let i = 0; i < itemToWrite.length; i += 25) {
                         batches.push(itemToWrite.slice(i, i + 25));
                     }
@@ -256,7 +256,7 @@ const todayOrder = asyncHandler(async (req, res) => {
         try{    
         const ordrs = JSON.parse(ordr);
         let itemToWrite = [];
-        let meal_date = formatDate(str_dt);
+        let meal_date = formatDateForTodayOrder(str_dt);
         let orderList = [
             {
                 meal_time: "breakfast",

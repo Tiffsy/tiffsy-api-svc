@@ -152,6 +152,10 @@ const addSubscription = asyncHandler(async (req, res) => {
         const tdc = parseInt(dc);
         const tsubtype = parseInt(subtype);
         const tbill = parseInt(bill);
+
+        console.log(str_dt);
+        console.log(end_dt);
+
         const item = {
             cst_id: cst_id,
             str_dt: str_dt,
@@ -191,8 +195,11 @@ const addSubscription = asyncHandler(async (req, res) => {
                     const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
                     const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').toDate();
 
+                    console.log(startDate + endDate);
+
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
                         let meal_date = formatDate(current.toISOString());
+                        console.log(meal_date);
                         const order_id = uuidv4();
                         let tmp = {
                             cst_id: cst_id,
@@ -208,7 +215,7 @@ const addSubscription = asyncHandler(async (req, res) => {
                             brkMealType: brkMealType,
                             lchMealType: lchMealType,
                             dinMealType: dinMealType,
-                            meal_dt: meal_date
+                            ordr_date: meal_date
                         };
                         itemToWrite.push(tmp);
                     }
@@ -267,7 +274,7 @@ const todayOrder = asyncHandler(async (req, res) => {
                 mini_cnt: 0,
                 spl_cnt: 0,
                 trn_id : "dummy",
-                ordr_date: meal_date
+                meal_dt: meal_date
 
             }, 
             {
@@ -283,7 +290,7 @@ const todayOrder = asyncHandler(async (req, res) => {
                 mini_cnt: 0,
                 spl_cnt: 0,
                 trn_id : "dummy",
-                ordr_date: meal_date
+                meal_dt: meal_date
             }, 
             {
                 meal_time: "dinner",
@@ -298,7 +305,7 @@ const todayOrder = asyncHandler(async (req, res) => {
                 mini_cnt: 0,
                 spl_cnt: 0,
                 trn_id : "dummy",
-                ordr_date: meal_date
+                meal_dt: meal_date
             }
         ];
         for (const order of ordrs) {

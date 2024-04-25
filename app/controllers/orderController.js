@@ -6,14 +6,14 @@ const { v4: uuidv4 } = require('uuid');
 // convert ts to MM/DD/YYYY
 function formatDate(dateStr) {
     let dt = new Date(dateStr);
-    dt.setDate(dt.getDate() - 1);
+    dt.setDate(dt.getDate());
     return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
 }
+
 function formatDateForTodayOrder(dateStr) {
     let dt = new Date(dateStr);
     return dt.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }); // Format the date
 }
-
 
 // Cancel Order By Date (cst_id, ordr_id)
 const cancelOrderByDate = asyncHandler(async (req, res) => {
@@ -144,9 +144,9 @@ const addSubscription = asyncHandler(async (req, res) => {
         addr_id,
         subtype,
         remark,
-        nickname
+        nickname,
+        paymentId
     } = req.body;
-
     if (!cst_id || !sbcr_id || !str_dt || !end_dt || !cntct || !ts || !addr_line || !addr_id || !subtype) {
         res.status(401);
         throw new Error("Missing Fields")
@@ -176,7 +176,8 @@ const addSubscription = asyncHandler(async (req, res) => {
             subtype: tsubtype,
             remark: remark,
             nickname: nickname,
-            refund_amt: 0
+            refund_amt: 0,
+            paymentId: paymentId
         }
 
 
@@ -184,7 +185,6 @@ const addSubscription = asyncHandler(async (req, res) => {
             TableName: process.env.SUBSCRITPTION_DETAILS,
             Item: item
         };
-
         const response = await dynamoClient.put(params, async (err, data) => {
             if (err) {
                 res.status(500);
@@ -192,11 +192,11 @@ const addSubscription = asyncHandler(async (req, res) => {
             } else {
                 try {
                     let itemToWrite = [];
-                    const startDate = moment(str_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
-                    const endDate = moment(end_dt, 'YYYY-MM-DDTHH:mm:ss.SSSZ').add(1,'days').toDate();
+
+                    const startDate = moment.parseZone(str_dt, 'YYYY-MM-DD HH:mm:ss.SSS').toDate();
+                    const endDate = moment.parseZone(end_dt, 'YYYY-MM-DD HH:mm:ss.SSS').toDate();
                     for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
                         let meal_date = formatDate(current.toISOString());
-                        console.log(meal_date);
                         const order_id = uuidv4();
                         let tmp = {
                             cst_id: cst_id,
@@ -349,7 +349,6 @@ const todayOrder = asyncHandler(async (req, res) => {
 const getTodayOrder = asyncHandler(async (req, res) => {
 
     const {cst_id} = req.body;
-
     if(!cst_id){
         res.status(401);
         throw new Error("Missing Fields")

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler")
 const jwt = require("jsonwebtoken");
 const { dynamoClient } = require("../database/dbConfig");
 const { v4: uuidv4 } = require('uuid');
+const moment = require('moment');
 
 const validateEmail = (email) => {
     return String(email)
@@ -35,15 +36,62 @@ const adduser = asyncHandler(async (req, res) => {
             TableName: process.env.CUSTOMER_LOGIN,
             Item: data
         };
-        const response = await dynamoClient.put(params, (err, data) => {
+        const response = await dynamoClient.put(params, (err, data) =>  {
             if (err) {
                 console.error('Error Fetch items:', err);
                 res.status(500);
                 throw new Error(err);
             } else {
+                try {
+                
+                    let expiry = moment().add(10, 'days').format('MM/DD/YYYY');
+                    let itemToWrite = [
+                        {
+                            cst_id: cst_id,
+                            cpn_code: 'WELCOME30',
+                            cpn_cnt: 1,
+                            expiry_dt: expiry,
+                            discount_prnct: 30,
+                            min_price: 70,
+                            max_discount: 15
+                        },
+                        {
+                            cst_id: cst_id,
+                            cpn_code: 'FIRSTSUBSCRIPTION',
+                            cpn_cnt: 1,
+                            expiry_dt: expiry,
+                            discount_prnct: 30,
+                            min_price: 1000,
+                            max_discount: 100
+                        },
+                        {
+                            cst_id: cst_id,
+                            cpn_code: 'ORDER25',
+                            cpn_cnt: 2,
+                            expiry_dt: expiry,
+                            discount_prnct: 25,
+                            min_price: 70,
+                            max_discount: 10
+                        },
 
-                // add coupon API trigger.
-                res.status(200).json({ result: 'SUCCESS' });
+                    ];
+
+                    const params = {
+                        RequestItems: {
+                            [process.env.CUSTOMER_COUPONS]: itemToWrite.map(item => ({
+                                PutRequest: {
+                                    Item: item,
+                                },
+                            })),
+                        },
+                    };
+                    dynamoClient.batchWrite(params).promise();
+                    res.status(200).json({ result: "SUCCESS" });
+                }
+                catch (err) {
+                    res.status(500);
+                    throw new Error(err);
+                }
             }
         });
     }
@@ -67,6 +115,31 @@ const deleteUser = asyncHandler(async (req, res) => {
                 throw new Error(err);
             } else {
                 res.status(200).json({ result: 'SUCCESS' });
+            }
+        });
+    }
+})
+
+const searchUser = asyncHandler(async (req, res) => {
+    const { cst_id } = req.body;
+    if (!cst_id) {
+        res.status(401);
+        throw new Error("Unauthorised, customer ID missing");
+    }
+    else {
+        const params = {
+            TableName: process.env.CUSTOMER_LOGIN,
+            KeyConditionExpression: 'cst_id = :value',
+            ExpressionAttributeValues: {
+                ':value': cst_id,
+            }
+        };
+        const response = await dynamoClient.query(params, (err, data) => {
+            if (err) {
+                res.status(500);
+                throw new Error(err);
+            } else {
+                res.status(200).json({ result: 'SUCCESS', data: data["Items"] });
             }
         });
     }
@@ -247,4 +320,4 @@ const login = asyncHandler(async (req, res) => {
         throw new Error("Server error, no login res");
     }
 })
-module.exports = { login, adduser, getCustomerIdbyPhone, getCustomerIdbyMail, deleteUser};
+module.exports = { login, adduser, getCustomerIdbyPhone, getCustomerIdbyMail, deleteUser, searchUser};
